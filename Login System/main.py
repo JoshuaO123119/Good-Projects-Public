@@ -1,6 +1,10 @@
 import os, json
 
-"""Todo: 
+
+"""
+NOTE: This is just a simple project I made for fun and not to be taken serious. I know it's not safe to use only one file on the person's computer to hold accounts
+
+Todo: 
         1. Allow "Account Recovery" options
         2. Allow more fun projects user can play when logged into account
 """
