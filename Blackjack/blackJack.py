@@ -249,7 +249,7 @@ def main():
                             input("Type something to continue: ")
                             running=False
 
-    # Ends program when tokens less than or equal to 0
+    # Outputs game over to the user when they run out of tokens
     print("Game Over!\nYou ran out of tokens")
 
 # Execute code when file is ran as a script
