@@ -133,7 +133,6 @@ def main():
             while running:
                 # Clears terminal
                 os.system("cls")
-                startBet = startBet
                 # Assigns hand totals
                 humanHandAmount = deckAmount(humanHand)
                 aiHandAmount = deckAmount(aiHand)
@@ -150,24 +149,30 @@ def main():
                     # Prints options and let user choose
                     print("Options:\n\t1. Hit\n\t2. Double\n\t3. Stand\n")
 
-                    # If they didn't used the double option
+                    # If they didn't use the double option
                     if not double:
                         x = input("Choice: ").lower().strip()
                     # If they used double option
                     else:
-                        # Force user to "stand" after choosing double option
-                        x = "3"
+                        if (tokens - startBet) >= 0:
+                            # Force user to "stand" after choosing double option
+                            x = "3"
+                            tokens -= startBet
+                        else:
+                            print("You don't have enough tokens to double!")
+                            input("Type something to continue: ")
+                            continue
 
                     # Check if they typed in any available options
                     if x in ["1", "2", "3" ,"hit", "stand", "double"]:
                         # Hit option
                         if x in ["1", "hit"]:
-                            # Adds card to human hand and re-calculates hand total
+                            # Adds card to human hand and recalculates hand total
                             humanHand.append(random.choice(cards))
                             humanHandAmount = deckAmount(humanHand)
                         # Double option
                         elif x in ["2", "double"]:
-                            # Adds only 1 card to human hand, and re-calculates hand total
+                            # Adds only 1 card to human hand, and recalculates hand total
                             humanHand.append(random.choice(cards))
                             humanHandAmount = deckAmount(humanHand)
                             # Set double so it only gives one card before its automatically "stands"
@@ -193,6 +198,8 @@ def main():
                                 # If AI has higher hand total than human (loss)
                                 if aiHandAmount > humanHandAmount:
                                     gainLoss = startBet * mult
+                                    if double:
+                                        tokens -= startBet
                                     displayHands()
                                     print(f"AI wins this round! -{gainLoss} tokens")
                                     input("Type something to continue: ")
@@ -225,6 +232,8 @@ def main():
                 # If human busted (loss)
                 elif humanHandAmount > 21:
                     gainLoss = startBet * mult
+                    if double:
+                        tokens -= startBet
                     displayHands()
                     print(f"AI wins this round! -{gainLoss} tokens")
                     input("Type something to continue: ")
