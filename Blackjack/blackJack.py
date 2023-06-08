@@ -66,30 +66,61 @@ def main():
 
         # Displays in a clean format to user of tokens, and hands
         def displayHands():
+            os.system("cls")
             print(f"Tokens: {tokens}\n")
             print(f"Your hand total: {humanHandAmount}")
             print(f"Your hand: {humanHand}\n")
             print(f"AI hand total: {aiHandAmount}")
             print(f"AI hand: {aiHand}\n")
 
+        # Ask player for starting bet and subtract from total
+        def startBetFunc(tokens=tokens):
+            # Allow user to set starting bet
+            print(f"Tokens: {tokens}\n")
+            startBet = input("Starting bet: ").strip()
+            # Clear terminal
+            os.system("cls")
+            # Check if what the user inputted is an integer
+            if startBet.isdigit():
+                # Round up to prevent betting fractions of tokens
+                startBet = round(int(startBet))
+                # Make sure they don't bet more than they have
+                if (tokens - startBet) >= 0:
+                    # Subtract total tokens from their bet
+                    tokens -= startBet
+                # If they try to bet more than they have
+                else:
+                    print("You can't bet more tokens than you have!")
+                    input("Type something to continue: ")
+                    startBetFunc(tokens=tokens)
+            # If what the user inputted is not an integer
+            else:
+                print("That wasn't a valid integer")
+                input("Type something to continue: ")
+                startBetFunc(tokens=tokens)
+            return startBet, tokens
+        startBet, tokens = startBetFunc()
+
+
         # Check if player has 21
         if humanHandAmount == 21:
             # Push
             if aiHandAmount == 21:
-                tokens += 10
+                tokens += startBet
                 displayHands()
-                print("You both push! +10 tokens")
+                print(f"You both push! +{tokens} tokens")
                 input("Type something to continue: ")
                 continue
-            # If human has 21 and ai has lower (Blackjack)
+            # If human has 21 and AI has lower (Blackjack)
             else:
-                tokens += 25
+                tokens += round(startBet*2*1.25)
                 displayHands()
-                print("Blackjack! +25 tokens")
+                print(f"Blackjack! +{tokens} tokens")
                 input("Type something to continue: ")
                 continue
         # If starting hand is not 21
         else:
+            # Used to keep each game running
             running = True
             # Set a boolean to check if they used double option
             double = False
@@ -102,7 +133,7 @@ def main():
             while running:
                 # Clears terminal
                 os.system("cls")
-
+                startBet = startBet
                 # Assigns hand totals
                 humanHandAmount = deckAmount(humanHand)
                 aiHandAmount = deckAmount(aiHand)
@@ -119,10 +150,12 @@ def main():
                     # Prints options and let user choose
                     print("Options:\n\t1. Hit\n\t2. Double\n\t3. Stand\n")
 
+                    # If they didn't used the double option
                     if not double:
                         x = input("Choice: ").lower().strip()
                     # If they used double option
                     else:
+                        # Force user to "stand" after choosing double option
                         x = "3"
 
                     # Check if they typed in any available options
@@ -159,15 +192,14 @@ def main():
                             if aiHandAmount <= 21:
                                 # If AI has higher hand total than human (loss)
                                 if aiHandAmount > humanHandAmount:
-                                    gainLoss = 20 * mult
-                                    tokens -= gainLoss
+                                    gainLoss = startBet * mult
                                     displayHands()
                                     print(f"AI wins this round! -{gainLoss} tokens")
                                     input("Type something to continue: ")
                                     running = False
                                 # If AI has lower hand total than human (win)
                                 elif aiHandAmount < humanHandAmount:
-                                    gainLoss = 20 * mult
+                                    gainLoss = (startBet * 2) * mult
                                     tokens += gainLoss
                                     displayHands()
                                     print(f"You win this round! +{gainLoss} tokens")
@@ -175,7 +207,7 @@ def main():
                                     running = False
                                 # If AI and human have same hand total (tie/push)
                                 else:
-                                    gainLoss = 10 * mult
+                                    gainLoss = startBet * mult
                                     tokens += gainLoss
                                     displayHands()
                                     print(f"Push! +{gainLoss} tokens")
@@ -183,7 +215,7 @@ def main():
                                     running = False
                             # If AI went over 21 (busted) (win)
                             else:
-                                gainLoss = 20 * mult
+                                gainLoss = (startBet * 2) * mult
                                 tokens += gainLoss
                                 displayHands()
                                 print(f"You win this round! +{gainLoss} tokens")
@@ -192,8 +224,7 @@ def main():
                                 running = False
                 # If human busted (loss)
                 elif humanHandAmount > 21:
-                    gainLoss = 20 * mult
-                    tokens -= gainLoss
+                    gainLoss = startBet * mult
                     displayHands()
                     print(f"AI wins this round! -{gainLoss} tokens")
                     input("Type something to continue: ")
@@ -204,7 +235,7 @@ def main():
                     # If both human and AI got 21 (tie/push)
                     if humanHandAmount == aiHandAmount:
                         # Push
-                        gainLoss = 10 * mult
+                        gainLoss = startBet * mult
                         tokens += gainLoss
                         displayHands()
                         print(f"Push, +{gainLoss} tokens")
@@ -225,16 +256,18 @@ def main():
                             # If AI and human have same hand total (tie/push)
                             if aiHandAmount == humanHandAmount:
                                 # Push
-                                gainLoss = 10 * mult
+                                gainLoss = startBet * mult
                                 tokens += gainLoss
                                 displayHands()
                                 print(f"Push, +{gainLoss} tokens")
                                 input("Type something to continue: ")
                                 running = False
-                            # If ai didn't get 21 while human does (win)
+                            # If AI didn't get 21 while human does (win)
                             else:
                                 os.system("cls")
-                                gainLoss = 25 * mult
+                                # Give them twice the money they bet, and multiply because they got blackjack
+                                # Also round so the user doesn't get a fraction of a token back
+                                gainLoss = round(startBet*2*1.25) * mult
                                 tokens += gainLoss
                                 displayHands()
                                 print(f"You win this round! +{gainLoss} tokens")
@@ -243,7 +276,7 @@ def main():
                         # If AI already has hand total 17 or above, and human has 21 (win)
                         else:
                             os.system("cls")
-                            gainLoss = 25 * mult
+                            gainLoss = round(startBet*2*1.25) * mult
                             tokens += gainLoss
                             displayHands()
                             print(f"You win this round! +{gainLoss} tokens")
