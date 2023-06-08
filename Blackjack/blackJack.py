@@ -5,6 +5,7 @@ import os, random, time
         1. Allow saving token progress and load on boot
         2. Add local multiplayer (difficult challenge)
         3. Allow player to go against more AI
+        4. Split option
 """
 def main():
     # Clear terminal (Windows)
