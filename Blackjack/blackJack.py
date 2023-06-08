@@ -1,5 +1,4 @@
 import os, random, time
-
 """
     Future ideas:
         1. Allow saving token progress and load on boot
@@ -74,7 +73,8 @@ def main():
             print(f"AI hand: {aiHand}\n")
 
         # Ask player for starting bet and subtract from total
-        def startBetFunc(tokens=tokens):
+        while True:
+            os.system("cls")
             # Allow user to set starting bet
             print(f"Tokens: {tokens}\n")
             startBet = input("Starting bet: ").strip()
@@ -85,22 +85,23 @@ def main():
                 # Round up to prevent betting fractions of tokens
                 startBet = round(int(startBet))
                 # Make sure they don't bet more than they have
-                if (tokens - startBet) >= 0:
+                if (tokens - startBet) >= 0 and startBet > 0:
                     # Subtract total tokens from their bet
                     tokens -= startBet
+                    break
+
+                elif startBet == 0:
+                    print(f"You can't bet nothing!")
+                    input("Type something to continue: ")
+
                 # If they try to bet more than they have
                 else:
                     print("You can't bet more tokens than you have!")
                     input("Type something to continue: ")
-                    startBetFunc(tokens=tokens)
             # If what the user inputted is not an integer
             else:
                 print("That wasn't a valid integer")
                 input("Type something to continue: ")
-                startBetFunc(tokens=tokens)
-            return startBet, tokens
-        startBet, tokens = startBetFunc()
-
 
         # Check if player has 21
         if humanHandAmount == 21:
@@ -108,16 +109,18 @@ def main():
             if aiHandAmount == 21:
                 tokens += startBet
                 displayHands()
-                print(f"You both push! +{tokens} tokens")
+                print(f"You both push! +{startBet} tokens")
                 input("Type something to continue: ")
                 continue
             # If human has 21 and AI has lower (Blackjack)
             else:
-                tokens += round(startBet*2*1.25)
+                gainLoss = round(startBet*2*1.25)
+                tokens += gainLoss
                 displayHands()
-                print(f"Blackjack! +{tokens} tokens")
+                print(f"Blackjack! +{gainLoss} tokens")
                 input("Type something to continue: ")
                 continue
+
         # If starting hand is not 21
         else:
             # Used to keep each game running
@@ -274,9 +277,9 @@ def main():
                             # If AI didn't get 21 while human does (win)
                             else:
                                 os.system("cls")
+                                gainLoss = round(startBet*2) * mult
                                 # Give them twice the money they bet, and multiply because they got blackjack
                                 # Also round so the user doesn't get a fraction of a token back
-                                gainLoss = round(startBet*2*1.25) * mult
                                 tokens += gainLoss
                                 displayHands()
                                 print(f"You win this round! +{gainLoss} tokens")
@@ -285,7 +288,7 @@ def main():
                         # If AI already has hand total 17 or above, and human has 21 (win)
                         else:
                             os.system("cls")
-                            gainLoss = round(startBet*2*1.25) * mult
+                            gainLoss = round(startBet*2) * mult
                             tokens += gainLoss
                             displayHands()
                             print(f"You win this round! +{gainLoss} tokens")
