@@ -1,0 +1,10 @@
+{
+  "John": [
+    {
+      "phone": "555-123-4567",
+      "address": "231 Some Rand Address",
+      "email": "johndoe@fake-gmail.com",
+      "notes": null
+    }
+  ]
+}
