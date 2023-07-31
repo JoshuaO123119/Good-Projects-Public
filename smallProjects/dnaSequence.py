@@ -7,7 +7,7 @@ seq1 = 'atgcttcggcaagactcaaaaaata'
 seq2 = 'atgcttcggcaagactaaataaata'
 def sameString(string1:str, string2:str):
     """
-    Checks to see if two strings are same. If not, then
+    Checks to see if two strings are same.
     :return: list of indexes of where strings are different, else None.
     """
     indexes = []
