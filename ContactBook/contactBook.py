@@ -282,10 +282,10 @@ if __name__ == "__main__":
         # Clear terminal
         os.system("cls")
         # Display all options to user
-        print("Options:\n\t1. Add Contact\n\t2. Get Contact Info\n\t3. Remove Contact\n\t4. Display Contacts\n\t5. Update Contact")
+        print("Options:\n\t1. Add Contact\n\t2. Get Contact Info\n\t3. Remove Contact\n\t4. Display Contacts\n\t5. Update Contact\n\t6. Exit")
         x = input("\nChoice (1-5): ").strip()
         # If they typed a valid option
-        if x in ["1", "2", "3", "4", "5"]:
+        if x in ["1", "2", "3", "4", "5", "6"]:
             # Add contact
             if x == "1":
                 name = input("Name of contact: ").title()
@@ -310,6 +310,9 @@ if __name__ == "__main__":
             elif x == "5":
                 name = input("Name of contact: ").title()
                 updateContact(name)
+            # Exit
+            elif x == "6":
+                quit()
         # If they didn't type a valid option
         else:
             print("That is not a valid option")
