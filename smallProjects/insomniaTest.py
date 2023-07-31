@@ -20,7 +20,7 @@ def options(answer:str):
     else:
         return None
 
-print("For each question, please CIRCLE the number that best describes your answer.")
+print("For each question, please TYPE the number that best describes your answer.")
 print("Please rate the CURRENT (i.e. LAST 2 WEEKS) SEVERITY of your sleep problem(s).", end="\n\n")
 
 def questions1_3(question):
