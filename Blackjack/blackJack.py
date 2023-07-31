@@ -157,14 +157,8 @@ def main():
                         x = input("Choice: ").lower().strip()
                     # If they used double option
                     else:
-                        if (tokens - startBet) >= 0:
-                            # Force user to "stand" after choosing double option
-                            x = "3"
-                            tokens -= startBet
-                        else:
-                            print("You don't have enough tokens to double!")
-                            input("Type something to continue: ")
-                            continue
+                        # Force user to "stand" after choosing double option
+                        x = "3"
 
                     # Check if they typed in any available options
                     if x in ["1", "2", "3" ,"hit", "stand", "double"]:
@@ -175,13 +169,19 @@ def main():
                             humanHandAmount = deckAmount(humanHand)
                         # Double option
                         elif x in ["2", "double"]:
-                            # Adds only 1 card to human hand, and recalculates hand total
-                            humanHand.append(random.choice(cards))
-                            humanHandAmount = deckAmount(humanHand)
-                            # Set double so it only gives one card before its automatically "stands"
-                            double = True
-                            # Multiply the win/loss rate by 2
-                            mult = 2
+                            if (tokens - startBet) >= 0:
+                                # Adds only 1 card to human hand, and recalculates hand total
+                                humanHand.append(random.choice(cards))
+                                humanHandAmount = deckAmount(humanHand)
+                                # Set double so it only gives one card before its automatically "stands"
+                                double = True
+                                # Multiply the win/loss rate by 2
+                                mult = 2
+                                tokens -= startBet
+                            else:
+                                print("You don't have enough tokens to double!")
+                                input("Type something to continue: ")
+                                continue
                         # Stand option
                         elif x in ["3", "stand"]:
                             # AI turn, AI stands at 17 or above
