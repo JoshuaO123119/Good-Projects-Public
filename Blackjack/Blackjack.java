@@ -5,39 +5,59 @@ import java.util.Scanner;
 
 public class Blackjack {
     private static final String[] CARDS = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
-    private static int tokens = 200;
+    public static int tokens = 200;
     private static final Scanner scanner = new Scanner(System.in);
     private static final Random random = new Random();
 
     public static void main(String[] args) {
-        while (true) {
-            mainGame();
+    	while (true) {
+            blackJackGame();
             System.out.println("Do you wish to play again? (y/n): ");
             String choice = scanner.nextLine().toLowerCase().trim();
             if (!choice.equals("y") && !choice.equals("yes")) {
                 break;
             }
+            tokens = 200;
+            
         }
     }
 
-    private static void mainGame() {
-        clearConsole();
+    private static void blackJackGame() {
+    	clearConsole();
         while (tokens > 0) {
             clearConsole();
             List<String> humanHand = new ArrayList<>();
             List<String> aiHand = new ArrayList<>();
 
             for (int i = 0; i < 2; i++) {
-                humanHand.add(randomCard());
-                aiHand.add(randomCard());
+                humanHand.add(CARDS[random.nextInt(CARDS.length)]);
+                aiHand.add(CARDS[random.nextInt(CARDS.length)]);
             }
 
             int humanHandAmount = deckAmount(humanHand);
             int aiHandAmount = deckAmount(aiHand);
-
+            	
             displayHands(humanHand, aiHand, humanHandAmount, aiHandAmount);
-
-            int startBet = getStartingBet();
+            int startBet = 0;
+            while (true) {
+            	clearConsole();
+                System.out.println("Tokens: " + tokens);
+                System.out.print("Starting bet: ");
+                String input = scanner.nextLine().trim();
+                if (input.matches("\\d+")) {
+                    int bet = Integer.parseInt(input);
+                    if (bet > 0 && bet <= tokens) {
+                        startBet = bet;
+                        break;
+                    } else {
+                        System.out.println("You can't bet more tokens than you have or nothing!");
+                        waitForInput();
+                    }
+                } else {
+                    System.out.println("That wasn't a valid integer");
+                    waitForInput();
+                }
+            }
             tokens -= startBet;
 
             if (humanHandAmount == 21) {
@@ -67,16 +87,16 @@ public class Blackjack {
                 humanHandAmount = deckAmount(humanHand);
                 aiHandAmount = deckAmount(aiHand);
 
-                if (humanHandAmount <= 20) {
+                if (humanHandAmount <= 21) {
                     displayGameState(humanHand, aiHand, humanHandAmount, aiHandAmount);
 
                     String choice = doubleBet ? "3" : getPlayerChoice();
 
                     if (choice.equals("1") || choice.equals("hit")) {
-                        humanHand.add(randomCard());
+                        humanHand.add(CARDS[random.nextInt(CARDS.length)]);
                     } else if (choice.equals("2") || choice.equals("double")) {
                         if (tokens >= startBet) {
-                            humanHand.add(randomCard());
+                            humanHand.add(CARDS[random.nextInt(CARDS.length)]);
                             doubleBet = true;
                             mult = 2;
                             tokens -= startBet;
@@ -87,7 +107,7 @@ public class Blackjack {
                         }
                     } else if (choice.equals("3") || choice.equals("stand")) {
                         while (aiHandAmount <= 16) {
-                            aiHand.add(randomCard());
+                            aiHand.add(CARDS[random.nextInt(CARDS.length)]);
                             aiHandAmount = deckAmount(aiHand);
                             displayHands(humanHand, aiHand, humanHandAmount, aiHandAmount);
                             sleep(1000);
@@ -96,9 +116,6 @@ public class Blackjack {
                         if (aiHandAmount <= 21) {
                             if (aiHandAmount > humanHandAmount) {
                                 gainLoss = startBet * mult;
-                                if (doubleBet) {
-                                    tokens -= startBet;
-                                }
                                 displayHands(humanHand, aiHand, humanHandAmount, aiHandAmount);
                                 System.out.println("AI wins this round! -" + gainLoss + " tokens");
                                 waitForInput();
@@ -129,9 +146,6 @@ public class Blackjack {
                     }
                 } else {
                     gainLoss = startBet * mult;
-                    if (doubleBet) {
-                        tokens -= startBet;
-                    }
                     displayHands(humanHand, aiHand, humanHandAmount, aiHandAmount);
                     System.out.println("AI wins this round! -" + gainLoss + " tokens");
                     waitForInput();
@@ -156,26 +170,6 @@ public class Blackjack {
         return scanner.nextLine().toLowerCase().trim();
     }
 
-    private static int getStartingBet() {
-        while (true) {
-            clearConsole();
-            System.out.println("Tokens: " + tokens);
-            System.out.print("Starting bet: ");
-            String input = scanner.nextLine().trim();
-            if (input.matches("\\d+")) {
-                int bet = Integer.parseInt(input);
-                if (bet > 0 && bet <= tokens) {
-                    return bet;
-                } else {
-                    System.out.println("You can't bet more tokens than you have or nothing!");
-                    waitForInput();
-                }
-            } else {
-                System.out.println("That wasn't a valid integer");
-                waitForInput();
-            }
-        }
-    }
 
     private static void displayHands(List<String> humanHand, List<String> aiHand, int humanHandAmount, int aiHandAmount) {
         clearConsole();
@@ -211,10 +205,6 @@ public class Blackjack {
             numAces--;
         }
         return handAmount;
-    }
-
-    private static String randomCard() {
-        return CARDS[random.nextInt(CARDS.length)];
     }
 
     private static void clearConsole() {
