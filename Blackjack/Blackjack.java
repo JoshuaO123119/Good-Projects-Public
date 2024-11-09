@@ -5,24 +5,23 @@ import java.util.Scanner;
 
 public class Blackjack {
     private static final String[] CARDS = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
-    public static int tokens = 200;
+    private static final int tokenAmount = 200;
     private static final Scanner scanner = new Scanner(System.in);
     private static final Random random = new Random();
 
     public static void main(String[] args) {
     	while (true) {
-            blackJackGame();
+            blackJackGame(tokenAmount);
             System.out.println("Do you wish to play again? (y/n): ");
             String choice = scanner.nextLine().toLowerCase().trim();
             if (!choice.equals("y") && !choice.equals("yes")) {
                 break;
             }
-            tokens = 200;
             
         }
     }
 
-    private static void blackJackGame() {
+    private static void blackJackGame(int tokens) {
     	clearConsole();
         while (tokens > 0) {
             clearConsole();
@@ -34,10 +33,10 @@ public class Blackjack {
                 aiHand.add(CARDS[random.nextInt(CARDS.length)]);
             }
 
-            int humanHandAmount = deckAmount(humanHand);
-            int aiHandAmount = deckAmount(aiHand);
+            int humanHandAmount = deckAmountBlackjack(humanHand);
+            int aiHandAmount = deckAmountBlackjack(aiHand);
             	
-            displayHands(humanHand, aiHand, humanHandAmount, aiHandAmount);
+            displayHandsBlackJack(humanHand, aiHand, humanHandAmount, aiHandAmount, tokens);
             int startBet = 0;
             while (true) {
             	clearConsole();
@@ -63,14 +62,14 @@ public class Blackjack {
             if (humanHandAmount == 21) {
                 if (aiHandAmount == 21) {
                     tokens += startBet;
-                    displayHands(humanHand, aiHand, humanHandAmount, aiHandAmount);
+                    displayHandsBlackJack(humanHand, aiHand, humanHandAmount, aiHandAmount, tokens);
                     System.out.println("You both push! +" + startBet + " tokens");
                     waitForInput();
                     continue;
                 } else {
                     int gainLoss = (int) Math.round(startBet * 2 * 1.25);
                     tokens += gainLoss;
-                    displayHands(humanHand, aiHand, humanHandAmount, aiHandAmount);
+                    displayHandsBlackJack(humanHand, aiHand, humanHandAmount, aiHandAmount, tokens);
                     System.out.println("Blackjack! +" + gainLoss + " tokens");
                     waitForInput();
                     continue;
@@ -84,13 +83,22 @@ public class Blackjack {
 
             while (running) {
                 clearConsole();
-                humanHandAmount = deckAmount(humanHand);
-                aiHandAmount = deckAmount(aiHand);
+                humanHandAmount = deckAmountBlackjack(humanHand);
+                aiHandAmount = deckAmountBlackjack(aiHand);
 
                 if (humanHandAmount <= 21) {
-                    displayGameState(humanHand, aiHand, humanHandAmount, aiHandAmount);
-
-                    String choice = doubleBet ? "3" : getPlayerChoice();
+                	clearConsole();
+                    System.out.println("Tokens: " + tokens);
+                    System.out.println("Hand total: " + humanHandAmount);
+                    System.out.println("Your hand: " + humanHand);
+                    System.out.println("AI hand: [" + aiHand.get(0) + ", X]");
+                    System.out.println("Options:\n\t1. Hit\n\t2. Double\n\t3. Stand\n");
+                	//                    displayGameState(humanHand, aiHand, humanHandAmount, aiHandAmount, tokens);
+                    
+                    System.out.print("Choice: ");
+                    String playerChoice = scanner.nextLine().toLowerCase().trim();
+                    
+                    String choice = doubleBet ? "3" : playerChoice;
 
                     if (choice.equals("1") || choice.equals("hit")) {
                         humanHand.add(CARDS[random.nextInt(CARDS.length)]);
@@ -108,29 +116,29 @@ public class Blackjack {
                     } else if (choice.equals("3") || choice.equals("stand")) {
                         while (aiHandAmount <= 16) {
                             aiHand.add(CARDS[random.nextInt(CARDS.length)]);
-                            aiHandAmount = deckAmount(aiHand);
-                            displayHands(humanHand, aiHand, humanHandAmount, aiHandAmount);
+                            aiHandAmount = deckAmountBlackjack(aiHand);
+                            displayHandsBlackJack(humanHand, aiHand, humanHandAmount, aiHandAmount, tokens);
                             sleep(1000);
                         }
 
                         if (aiHandAmount <= 21) {
                             if (aiHandAmount > humanHandAmount) {
                                 gainLoss = startBet * mult;
-                                displayHands(humanHand, aiHand, humanHandAmount, aiHandAmount);
+                                displayHandsBlackJack(humanHand, aiHand, humanHandAmount, aiHandAmount, tokens);
                                 System.out.println("AI wins this round! -" + gainLoss + " tokens");
                                 waitForInput();
                                 running = false;
                             } else if (aiHandAmount < humanHandAmount) {
                                 gainLoss = (startBet * 2) * mult;
                                 tokens += gainLoss;
-                                displayHands(humanHand, aiHand, humanHandAmount, aiHandAmount);
+                                displayHandsBlackJack(humanHand, aiHand, humanHandAmount, aiHandAmount, tokens);
                                 System.out.println("You win this round! +" + gainLoss + " tokens");
                                 waitForInput();
                                 running = false;
                             } else {
                                 gainLoss = startBet * mult;
                                 tokens += gainLoss;
-                                displayHands(humanHand, aiHand, humanHandAmount, aiHandAmount);
+                                displayHandsBlackJack(humanHand, aiHand, humanHandAmount, aiHandAmount, tokens);
                                 System.out.println("Push! +" + gainLoss + " tokens");
                                 waitForInput();
                                 running = false;
@@ -138,7 +146,7 @@ public class Blackjack {
                         } else {
                             gainLoss = (startBet * 2) * mult;
                             tokens += gainLoss;
-                            displayHands(humanHand, aiHand, humanHandAmount, aiHandAmount);
+                            displayHandsBlackJack(humanHand, aiHand, humanHandAmount, aiHandAmount, tokens);
                             System.out.println("You win this round! +" + gainLoss + " tokens");
                             waitForInput();
                             running = false;
@@ -146,7 +154,7 @@ public class Blackjack {
                     }
                 } else {
                     gainLoss = startBet * mult;
-                    displayHands(humanHand, aiHand, humanHandAmount, aiHandAmount);
+                    displayHandsBlackJack(humanHand, aiHand, humanHandAmount, aiHandAmount, tokens);
                     System.out.println("AI wins this round! -" + gainLoss + " tokens");
                     waitForInput();
                     running = false;
@@ -156,22 +164,8 @@ public class Blackjack {
         System.out.println("Game Over!\nYou ran out of tokens");
     }
 
-    private static void displayGameState(List<String> humanHand, List<String> aiHand, int humanHandAmount, int aiHandAmount) {
-        clearConsole();
-        System.out.println("Tokens: " + tokens);
-        System.out.println("Hand total: " + humanHandAmount);
-        System.out.println("Your hand: " + humanHand);
-        System.out.println("AI hand: [" + aiHand.get(0) + ", X]");
-        System.out.println("Options:\n\t1. Hit\n\t2. Double\n\t3. Stand\n");
-    }
 
-    private static String getPlayerChoice() {
-        System.out.print("Choice: ");
-        return scanner.nextLine().toLowerCase().trim();
-    }
-
-
-    private static void displayHands(List<String> humanHand, List<String> aiHand, int humanHandAmount, int aiHandAmount) {
+    private static void displayHandsBlackJack(List<String> humanHand, List<String> aiHand, int humanHandAmount, int aiHandAmount, int tokens) {
         clearConsole();
         System.out.println("Tokens: " + tokens);
         System.out.println("Your hand total: " + humanHandAmount);
@@ -180,7 +174,7 @@ public class Blackjack {
         System.out.println("AI hand: " + aiHand);
     }
 
-    private static int deckAmount(List<String> hand) {
+    private static int deckAmountBlackjack(List<String> hand) {
         int handAmount = 0;
         int numAces = 0;
 
