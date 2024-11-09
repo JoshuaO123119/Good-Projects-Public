@@ -207,7 +207,7 @@ public class Blackjack {
     }
 
     private static void waitForInput() {
-        System.out.print("Type something to continue: ");
+        System.out.print("Press enter to continue: ");
         scanner.nextLine();
     }
 
