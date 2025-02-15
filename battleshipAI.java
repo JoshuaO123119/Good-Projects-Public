@@ -8,7 +8,7 @@ public class battleshipAI
 	private static final Random generator = new Random();
 
 	private static Boolean gameRunning = true;
-	// n = normal, h = hard
+	// s = stupid easy, h = hard
 	private static char difficulty = 'n';
 	private static boolean entireGameRunning = true;
 	private static int[] score = new int[2];
@@ -28,14 +28,17 @@ public class battleshipAI
 				while (true) {
 					clearConsole();
 					// Player choosing difficulty
-					System.out.println("What difficulty do you want the bot to be:\n\t1. Normal (AI shoots at random)\n\t2. Hard (If found ship it'll \"beam\" the ship)");
-					System.out.print("\nDifficulty (1-2): ");
+					System.out.println("What difficulty do you want the bot to be:\n\t1. Stupid Easy (AI shoots at random)\n\t2. Hard (Shoots random until it finds ship, then shoots around ship)\n\t3. Impossible (Has cheats and beams found ships)");
+					System.out.print("\nDifficulty (1-3): ");
 					char choice = input.next().trim().toLowerCase().charAt(0);
-					if (choice == '1' || choice == 'n') {
-						difficulty = 'n';
+					if (choice == '1' || choice == 's') {
+						difficulty = 's';
 					} else if (choice == '2' || choice == 'h') {
 						difficulty = 'h';
-					} else {
+					} else if (choice == '3' || choice == 'i') {
+					    difficulty = 'i';
+					} 
+					else {
 						System.out.println("That isn't a valid option!");
 						waitForInput();
 						continue;
@@ -169,6 +172,41 @@ public class battleshipAI
 
 	private static void displayBoards(String[][] player, String[][] aiBoard, String turn, boolean gameOver) {
 		clearConsole();
+		
+		boolean fiveShipFound = false;
+		boolean fourShipFound = false;
+		int threeShipCount = 0;
+		boolean twoShipFound = false;		
+		
+		// Display sunken ships (optimize this)
+		System.out.print("Enemy Ships Alive: ");
+		for (int i = 0; i < aiBoard.length; i++) {
+		    for (int j = 0; j < aiBoard[i].length; j++) {
+		        if (aiBoard[i][j].equals("5")) {
+		            fiveShipFound = true;
+		        }
+		        if (aiBoard[i][j].equals("4")) {
+		            fourShipFound = true;
+		        }
+		        if (aiBoard[i][j].equals("3")) {
+		            threeShipCount++;
+		        }
+		        if (aiBoard[i][j].equals("2")) {
+		            twoShipFound = true;
+		        }
+		    }
+		}
+		// Have to be a better way to do this
+		if (fiveShipFound) {System.out.print("5 ");}
+		if (fourShipFound) {System.out.print("4 ");}
+		if (threeShipCount > 0) {
+		    if (threeShipCount > 3) {System.out.print("3 3 ");}
+		    else {System.out.print("3 ");}}
+		if (twoShipFound) {System.out.print("2");}
+		
+		System.out.println();
+		
+		
 		// Display Player and AI's board side by side
 		System.out.println("____________________________________________________");
 		System.out.println("|       PLAYER BOARD     ||       ENEMY BOARD      |");
@@ -295,7 +333,7 @@ public class battleshipAI
 		// If AI, randomly, choose place
 		if (turn.equals("e")) {
 			// Normal difficulty (shoots at random)
-			if (difficulty == 'n') {
+			if (difficulty == 's') {
 				row = generator.nextInt(10);
 				column = generator.nextInt(10);
 			}
@@ -311,7 +349,7 @@ public class battleshipAI
 						if (board[i][j].equals("H")) {
 							// Search up, left, right, down for any numbers (ship remains)
 							try {
-								if (!board[i][j+1].equals("~") && !board[i][j+1].equals("H") && !board[i][j+1].equals("M")) {
+								if (!board[i][j+1].equals("H") && !board[i][j+1].equals("M")) {
 									nextX = i;
 									nextY = j+1;
 								}
@@ -320,7 +358,7 @@ public class battleshipAI
 							}
 
 							try {
-								if (!board[i][j-1].equals("~") && !board[i][j-1].equals("H") && !board[i][j-1].equals("M")) {
+								if (!board[i][j-1].equals("H") && !board[i][j-1].equals("M")) {
 									nextX = i;
 									nextY = j-1;
 								}
@@ -329,7 +367,7 @@ public class battleshipAI
 
 
 							try {
-								if (!board[i+1][j].equals("~") && !board[i+1][j].equals("H") && !board[i+1][j].equals("M")) {
+								if (!board[i+1][j].equals("H") && !board[i+1][j].equals("M")) {
 									nextX = i+1;
 									nextY = j;
 								}
@@ -337,7 +375,63 @@ public class battleshipAI
 							}
 
 							try {
-								if (!board[i-1][j].equals("~") && !board[i-1][j].equals("H") && !board[i-1][j].equals("M")) {
+								if (!board[i-1][j].equals("H") && !board[i-1][j].equals("M")) {
+									nextX = i-1;
+									nextY = j;
+								}
+							} catch (Exception e) {
+							}
+						}
+					}
+				}
+
+				// If never found hit ship
+				if (nextX == -1) {
+					row = generator.nextInt(10);
+					column = generator.nextInt(10);
+				} else { // If found hit ship, put next coordinates
+					row = nextX;
+					column = nextY;
+				}
+			}
+			
+			if (difficulty == 'i') {
+				// Found hit ship with number next to it
+				int nextX = -1;
+				int nextY = -1;
+				for (int i = 0; i < board.length; i++) {
+					for (int j = 0; j < board[i].length; j++) {
+						// If found hit ship
+						if (board[i][j].equals("H")) {
+							// Search up, left, right, down for any numbers (ship remains)
+							try {
+								if (!board[i][j+1].equals("H") && !board[i][j+1].equals("M") && !board[i][j+1].equals("~")) {
+									nextX = i;
+									nextY = j+1;
+								}
+							} catch (Exception e) {
+
+							}
+
+							try {
+								if (!board[i][j-1].equals("H") && !board[i][j-1].equals("M") && !board[i][j-1].equals("~")) {
+									nextX = i;
+									nextY = j-1;
+								}
+							} catch (Exception e) {
+							}
+
+
+							try {
+								if (!board[i+1][j].equals("H") && !board[i+1][j].equals("M") && !board[i+1][j].equals("~")) {
+									nextX = i+1;
+									nextY = j;
+								}
+							} catch (Exception e) {
+							}
+
+							try {
+								if (!board[i-1][j].equals("H") && !board[i-1][j].equals("M") && !board[i-1][j].equals("~")) {
 									nextX = i-1;
 									nextY = j;
 								}
