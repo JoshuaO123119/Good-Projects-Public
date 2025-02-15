@@ -13,7 +13,7 @@ public class tourneyBot {
     private static final Scanner input = new Scanner(System.in);
    
     public static void main(String[] args) {
-        for (int game = 0; game < 10000; game++) {
+        for (int game = 0; game < 1000; game++) {
             initializeBoard();
             boolean xTurn = game % 2 == 0;
            
@@ -75,8 +75,121 @@ public class tourneyBot {
     // My bot: Plays defensive if it sees enemy already has 2 in a row, otherwise play attack
     private static char[][] cpuMoveX() {
 		// Check to see if player is about to win
+		// Priorities
+		char[] players = {PLAYER_X, PLAYER_O};
+    	
+		for (char p : players) {
+		// ~ ~ ~ ~ ~ Check first for any possible wins for player_x ~ ~ ~ ~ ~ 
+		for (int k =-2; k<1; k++) {
+			for (int i = 0; i < board.length; i++) {
+				for (int j = 0; j < board[i].length; j++) {
+					// VERTICAL
+					try {
+						if (board[i][j-k] == EMPTY && board[i][j-k+1] == p && board[i][j-k+2] == p && board[i][j-k+3] == p) {
+							board[i][j-k] = PLAYER_X;
+							return board;
+						}
+					}catch (Exception e) {}
+					try {
+						if (board[i][j-k] == p && board[i][j-k+1] == EMPTY && board[i][j-k+2] == p && board[i][j-k+3] == p) {
+							board[i][j-k+1] = PLAYER_X;
+							return board;
+						}
+					}catch (Exception e) {}
+					try {
+						if (board[i][j-k] == p && board[i][j-k+1] == p && board[i][j-k+2] == EMPTY && board[i][j-k+3] == p) {
+							board[i][j-k+2] = PLAYER_X;
+							return board;
+						}
+					}catch (Exception e) {}
+					
+					try {
+						if (board[i][j-k] == p && board[i][j-k+1] == p && board[i][j-k+2] == p && board[i][j-k+3] == EMPTY) {
+							board[i][j-k+3] = PLAYER_X;
+							return board;
+						}
+					}catch (Exception e) {}
+					
+					// HORIZONTAL
+					try {
+						if (board[i-k][j] == EMPTY && board[i-k+1][j] == p && board[i-k+2][j] == p && board[i-k+3][j] == p) {
+							board[i-k][j] = PLAYER_X;
+							return board;
+						}
+					}catch(Exception e) {}
+					
+					try {
+						if (board[i-k][j] == p && board[i-k+1][j] == EMPTY && board[i-k+2][j] == p && board[i-k+3][j] == p) {
+							board[i-k+1][j] = PLAYER_X;
+							return board;
+						}
+					}catch(Exception e) {}
+					
+					try {
+						if (board[i-k][j] == p && board[i-k+1][j] == p && board[i-k+2][j] == EMPTY && board[i-k+3][j] == p) {
+							board[i-k+2][j] = PLAYER_X;
+							return board;
+						}
+					}catch(Exception e) {}
+					
+					try {
+						if (board[i-k][j] == p && board[i-k+1][j] == p && board[i-k+2][j] == p && board[i-k+3][j] == EMPTY) {
+							board[i-k+3][j] = PLAYER_X;
+							return board;
+						}
+					}catch(Exception e) {}
+				}
+			}
+		}
 		
-		char[] players = {PLAYER_O, PLAYER_X};
+		
+		// CHECK IF PLAYER IS ABOUT TO WIN BOTTOM LEFT TO TOP RIGHT
+		// DIAGONAL BOTTOM LEFT TO UP RIGHT
+		if (board[0][0] == EMPTY && board[1][1] == p && board[2][2] == p && board[3][3] == p) {
+			board[0][0] = PLAYER_X;
+			return board;
+		}
+		if (board[0][0] == p && board[1][1] == EMPTY && board[2][2] == p && board[3][3] == p) {
+			board[1][1] = PLAYER_X;
+			return board;
+		}
+		if (board[0][0] == p && board[1][1] == p && board[2][2] == EMPTY && board[3][3] == p) {
+			board[2][2] = PLAYER_X;
+			return board;
+		}
+		if (board[0][0] == p && board[1][1] == p && board[2][2] == p && board[3][3] == EMPTY) {
+			board[3][3] = PLAYER_X;
+			return board;
+		}
+		
+		
+		// DIAGONAL BOTTOM RIGHT TO UP LEFT
+		if (board[3][0] == EMPTY && board[2][1] == p && board[1][2] == p && board[0][3] == p) {
+			board[3][0] = PLAYER_X;
+			return board;
+		}
+		if (board[3][0] == p && board[2][1] == EMPTY && board[1][2] == p && board[0][3] == p) {
+			board[2][1] = PLAYER_X;
+			return board;
+		}
+		if (board[3][0] == p && board[2][1] == p && board[1][2] == EMPTY && board[0][3] == p) {
+			board[1][2] = PLAYER_X;
+			return board;
+		}
+		if (board[3][0] == p && board[2][1] == p && board[1][2] == p && board[0][3] == EMPTY) {
+			board[0][3] = PLAYER_X;
+			return board;
+		}
+		}
+		
+		// ~ ~ ~ IF NO POSSIBLE WINS CHECK FOR DEFENSIVE AND OFFENSIVE MANUEVERS ~ ~ ~ 
+		
+		// Transfer priorities
+		// PLAYER_O, PLAYER_X = Highly defensive, loses less games, ties more often, opponent scores almost never
+		// PLAYER_X, PLAYER_O = Highly offensive, wins more games, ties very little, opponent scores only a bit
+		players[0] = PLAYER_O;
+		players[1] = PLAYER_X;
+		
 		// Vertical Check both board[i][j-2] up to board[i][j+2]
 		for (char player : players) {
 	    	for (int k = -2; k < 1; k++) {
@@ -88,25 +201,20 @@ public class tourneyBot {
 								board[i][j-k] = PLAYER_X;
 								return board;
 							}
-						} catch (Exception e) {
-	
-						}
+						} catch (Exception e) {}
 						try {
 							// Player about to win left
 							if (board[i][j-k] == player && board[i][j-k+1] == player && board[i][j-k+2] == EMPTY) {
 								board[i][j-k+2] = PLAYER_X;
 								return board;
 							}
-						} catch (Exception e) {
-	
-						}
+						} catch (Exception e) {}
 						try { // Player about to win middle
 							if (board[i][j-k] == player && board[i][j-k+1] == EMPTY && board[i][j-k+2] == player) {
 								board[i][j-k+1] = PLAYER_X;
 								return board;
 							}
-						} catch (Exception e) {
-						}
+						} catch (Exception e) {}
 					}
 				}
 			}
@@ -115,25 +223,20 @@ public class tourneyBot {
 			for (int k = -2; k < 1; k++) {
 				for (int i = 0; i < board.length; i++) {
 					for (int j = 0; j < board[i].length; j++) {
-						
 						try {
 							// Player about to win right
 							if (board[i-k][j] == player && board[i-k+1][j] == player && board[i-k+2][j] == EMPTY) {
 								board[i-k+2][j] = PLAYER_X;
 								return board;
 							}
-						} catch (Exception e) {
-	
-						}
+						} catch (Exception e) {}
 						try {
 							// Player about to win left
 							if (board[i-k][j] == EMPTY && board[i-k+1][j] == player && board[i-k+2][j] == player) {
 								board[i-k][j] = PLAYER_X;
 								return board;
 							}
-						} catch (Exception e) {
-	
-						}
+						} catch (Exception e) {}
 	
 						try {
 							// Player about to win middle
@@ -141,9 +244,7 @@ public class tourneyBot {
 								board[i-k+1][j] = PLAYER_X;
 								return board;
 							}
-						} catch (Exception e) {
-	
-						}
+						} catch (Exception e) {}
 					}
 				}
 			}
