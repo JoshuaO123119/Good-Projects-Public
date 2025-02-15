@@ -13,7 +13,7 @@ public class tourneyBot {
     private static final Scanner input = new Scanner(System.in);
    
     public static void main(String[] args) {
-        for (int game = 0; game < 1000; game++) {
+        for (int game = 0; game < 1000000; game++) {
             initializeBoard();
             boolean xTurn = game % 2 == 0;
            
@@ -74,7 +74,11 @@ public class tourneyBot {
     }
     // My bot: Plays defensive if it sees enemy already has 2 in a row, otherwise play attack
     private static char[][] cpuMoveX() {
-		// Check to see if player is about to win
+		// ~ ~ Allow easy access to change priorities ~ ~
+    	// 0 - Defensive (~77% win, ~0.003% loss, ~23.0% tie) 1 - Offensive (~84.5% win, ~0.3% loss, ~15.2% tie)
+    	int priority = 1; // Default = 0
+    	
+    	// Check to see if player is about to win
 		// Priorities
 		char[] players = {PLAYER_X, PLAYER_O};
     	
@@ -187,8 +191,13 @@ public class tourneyBot {
 		// Transfer priorities
 		// PLAYER_O, PLAYER_X = Highly defensive, loses less games, ties more often, opponent scores almost never
 		// PLAYER_X, PLAYER_O = Highly offensive, wins more games, ties very little, opponent scores only a bit
-		players[0] = PLAYER_O;
-		players[1] = PLAYER_X;
+		if (priority == 0) {
+			players[0] = PLAYER_O;
+			players[1] = PLAYER_X;
+		} else {
+			players[0] = PLAYER_X;
+			players[1] = PLAYER_O;
+		}
 		
 		// Vertical Check both board[i][j-2] up to board[i][j+2]
 		for (char player : players) {
