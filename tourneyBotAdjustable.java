@@ -9,7 +9,7 @@ public class tourneyBotAdjustable {
     private static char[][] board = new char[SIZE][SIZE];
     private static int winsX = 0;
     private static int winsO = 0;
-   
+    
     public static void main(String[] args) {
         for (int game = 0; game < 100; game++) {
             initializeBoard();
@@ -72,10 +72,8 @@ public class tourneyBotAdjustable {
     }
     // My bot: Plays defensive if it sees enemy already has 2 in a row, otherwise play attack
     private static char[][] ultron(char currentPlayer, int winsX, int winsO) {
-		
-		
 		// ~ ~ Allow easy access to change priorities ~ ~
-    	// 0 - Defensive (~77% win, ~0.003% loss, ~23.0% tie) 1 - Offensive (~84.5% win, ~0.3% loss, ~15.2% tie)
+    	// 0 - Defensive (~77% win, ~0.002% loss, ~23.0% tie) 1 - Offensive (~84.5% win, ~0.3% loss, ~15.2% tie)
     	int priority = 0; // Default = defensive
     	
     	char enemyPlayer = ' ';
@@ -83,7 +81,7 @@ public class tourneyBotAdjustable {
 		if (currentPlayer == PLAYER_X) {
 		    enemyPlayer = PLAYER_O;
 		    
-		    // Change priortiy based on win/loss rate
+		    // Change priority based on win/loss rate
 		    if (winsX < winsO) { // If we're losing, play offensive
 		        priority = 1;
 		    }
@@ -94,7 +92,7 @@ public class tourneyBotAdjustable {
 		if (currentPlayer == PLAYER_O) {
 		    enemyPlayer = PLAYER_X;
 		    
-		    // Change priortiy based on win/loss rate
+		    // Change priority based on win/loss rate
 		    if (winsO < winsX) { // If we're losing, play offensive
 		        priority = 1; 
 		    }
@@ -224,10 +222,19 @@ public class tourneyBotAdjustable {
 			players[0] = currentPlayer;
 			players[1] = enemyPlayer;
 		}
-		
+
 		// Vertical Check both board[i][j-2] up to board[i][j+2]
 		for (char player : players) {
-	    	for (int k = -2; k < 1; k++) {
+	    	// Very specific circumstances with opponent having 2 lines in a row
+			if (board[0][3] == player && board[1][2] == player && board[2][2] == player && board[2][3] == player && board[2][1] == EMPTY) {
+				board[2][1] = currentPlayer;
+				return board;
+	    	}
+			if (board[3][0] == player && board[2][1] == player && board[2][2] == player && board[3][2] == player && board[1][2] == EMPTY) {
+				board[1][2] = currentPlayer;
+				return board;
+			}
+			for (int k = -2; k < 1; k++) {
 				for (int i = 0; i < board.length; i++) {
 					for (int j = 0; j < board[i].length; j++) {
 						try {
@@ -253,7 +260,6 @@ public class tourneyBotAdjustable {
 					}
 				}
 			}
-	
 			// Horizontal check both board[i-2][j] up to board[i+2][j]
 			for (int k = -2; k < 1; k++) {
 				for (int i = 0; i < board.length; i++) {
@@ -272,7 +278,6 @@ public class tourneyBotAdjustable {
 								return board;
 							}
 						} catch (Exception e) {}
-	
 						try {
 							// Player about to win middle
 							if (board[i-k][j] == player && board[i-k+1][j] == EMPTY && board[i-k+2][j] == player) {
@@ -294,16 +299,14 @@ public class tourneyBotAdjustable {
 							board[i+2][j+2] = currentPlayer;
 							return board;
 						}
-					} catch (Exception e) {
-					}
+					} catch (Exception e) {}
 					// Player about to win bottom right
 					try { // Check for pattern
 						if (board[i][j] == EMPTY && board[i+1][j+1] == player && board[i+2][j+2] == player) {
 							board[i][j] = currentPlayer;
 							return board;
 						}
-					} catch (Exception e) {
-					}
+					} catch (Exception e) {}
 	
 					// Player about to win middle
 					try { // Check for pattern
@@ -311,8 +314,7 @@ public class tourneyBotAdjustable {
 							board[i+1][j+1] = currentPlayer;
 							return board;
 						}
-					} catch (Exception e) {
-					}
+					} catch (Exception e) {}
 				}
 			}
 			
@@ -327,26 +329,21 @@ public class tourneyBotAdjustable {
 							board[i][j] = currentPlayer;
 							return board;
 						}
-					} catch (Exception e) {
-					}
-	
+					} catch (Exception e) {}
 					try { // Check for pattern
 						if (board[i][j] == player && board[i+1][j-1] == EMPTY && board[i+2][j-2] == player) {
 							// Middle about to win
 							board[i+1][j-1] = currentPlayer;
 							return board;
 						}
-					} catch (Exception e) {
-					}
-	
+					} catch (Exception e) {}
 					try { // Top left about to win
 						if (board[i][j] == player && board[i+1][j-1] == player && board[i+2][j-2] == EMPTY) {
 							// Middle about to win
 							board[i+2][j-2] = currentPlayer;
 							return board;
 						}
-					} catch (Exception e) {
-					}
+					} catch (Exception e) {}
 				}
 			}
 		
@@ -369,6 +366,24 @@ public class tourneyBotAdjustable {
 		}
 		}
 		
+		/* Pattern: 
+		0, 0
+		0, 3
+		3, 0,
+		3, 3
+		*/
+		//If no attack or defense needed, no middle needed, attack corners
+		// Only if in defense mode (has better results)
+		if (priority == 0) {
+			for (int i = 0; i < 4; i+=3) {
+			    for (int j = 0; j < 4; j+=3) {
+			        if (board[i][j] == EMPTY) {
+			            board[i][j] = currentPlayer;
+			            return board;
+			        }
+			    }
+			}
+		}
 		
 		// If player isn't about to win, and middle taken, corners taken, place randomly
 		while (true) {
