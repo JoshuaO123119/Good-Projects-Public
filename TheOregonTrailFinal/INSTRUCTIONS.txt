@@ -1,6 +1,6 @@
 How to run the game:
 	- Open powershell/cmd
-	- Use command "cmd <directory>" to continuously folder-by-folder navigate into folder TheOregonTrailFinal
+	- Use command "cd .\<directory>" to continuously folder-by-folder navigate into folder TheOregonTrailFinal
 	- (For windows) Use command dir to show the directories you can move into
 	- Run the command "java Main.java"
 	- Enjoy
